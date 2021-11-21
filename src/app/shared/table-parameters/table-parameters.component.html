@@ -1,0 +1,106 @@
+<div class="row" *ngIf="isVisible">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title"> {{title}}</h4>
+      </div>
+      <div class="container-fluid">
+        <td class="text-center">
+          <button style="margin:5px;" class="btn btn-round btn-info"
+            (click)="createOrEdit(content, true)">Create</button>
+        </td>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead class=" text-primary">
+              <th>
+                Name
+              </th>
+              <th>
+                Date Creation
+              </th>
+              <th>
+                Status
+              </th>
+              <th>
+                Options
+              </th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of parametersList">
+                <td>
+                  {{row.name}}
+                </td>
+                <td>
+                  {{row.dateCreation | date: 'dd/MM/yyyy hh:mm:ss'}}
+                </td>
+                <td>
+                  {{row.stateDescription}}
+                </td>
+                <td>
+                  <button style="margin:5px;" class="btn btn-round btn-warning" (click)="createOrEdit(content, false, row)">Edit</button>
+                  <button style="margin:5px;" class="btn btn-round btn-danger" (click)="handleDelete(row)">{{(row.state
+                    ? 'Enable' : 'Disable')}}</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="alert alert-info alert-with-icon alert-dismissible fade show" data-notify="container" *ngIf="!isVisible">
+  <button type="button" aria-hidden="true" class="close" data-dismiss="alert" aria-label="Close">
+    <i class="nc-icon nc-simple-remove"></i>
+  </button>
+  <span data-notify="icon" class="nc-icon nc-user-run"></span>
+  <span data-notify="message">Services Offline, please contact with the administrator</span>
+</div>
+
+
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{this.data.name === undefined ? 'Create' : 'Update'}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12 pr-1">
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" class="form-control" [(ngModel)]="description" placeholder="Please insert a description">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="handleCreateOrUpdate()">Save</button>
+  </div>
+</ng-template>
+
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{this.data.name === undefined ? 'Create' : 'Update'}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12 pr-1">
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" class="form-control" [(ngModel)]="description" placeholder="Please insert a description">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-success" (click)="handleCreateOrUpdate()">Save</button>
+  </div>
+</ng-template>
+

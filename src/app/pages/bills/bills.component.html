@@ -1,0 +1,211 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Billing to Pending / Pay</h4>
+      </div>
+      <div class="container-fluid">
+        <td class="text-center">
+          <button style="margin:5px;" class="btn btn-round btn-info" (click)="openModal(contentCreateBill)"><span
+              data-notify="icon" class="nc-icon nc-paper"></span> Generate New Bill</button>
+        </td>
+        <td class="text-center">
+          <button style="margin:5px;" class="btn btn-round btn-success" (click)="openModal(contentMassPay)"><span
+              data-notify="icon" class="nc-icon nc-bag-16"></span> Pay for date</button>
+        </td>
+      </div>
+      <div class="card-body">
+        <form>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Users</label>
+                <app-select-parameters [parameterList]="usersList" (onRowChange)="selectUser($event)">
+                </app-select-parameters>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Services</label>
+                <app-select-parameters [parameterList]="servicesList" (onRowChange)="selectService($event)">
+                </app-select-parameters>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>States</label>
+                <app-select-parameters [parameterList]="statesList" (onRowChange)="selectState($event)">
+                </app-select-parameters>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Currencies</label>
+                <app-select-parameters [parameterList]="coinsList" (onRowChange)="selectCurrency($event)">
+                </app-select-parameters>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="table-responsive" *ngIf="isVisible">
+          <table class="table">
+            <thead class=" text-primary">
+              <th> User Assigned </th>
+              <th> Amount </th>
+              <th> Currency </th>
+              <th> Service </th>
+              <th> Status </th>
+              <th> Date Creation </th>
+              <th> Options </th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of billsList">
+                <td> {{row.userAssigned}} </td>
+                <td> {{row.amount}} </td>
+                <td> {{row.currency}} </td>
+                <td> {{row.serviceBill}} </td>
+                <td>
+                  <label class="form-check-label" for="inline-checkbox1"><span
+                      class="badge badge-{{(row.stateBill === 'PENDING' ? 'warning' : 'success')}}">
+                      {{row.stateBill}}</span></label>
+                </td>
+                <td> {{row.dateBill | date: 'dd/MM/yyyy hh:mm:ss'}} </td>
+                <td>
+                  <div *ngIf="row.stateBill !== 'PENDING' ? false : true">
+                    <button style="margin:5px;" class="btn btn-round btn-success" (click)="payModal(content, row)">
+                      <span data-notify="icon" class="nc-icon nc-bag-16"></span> Pay</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="alert alert-info alert-with-icon alert-dismissible fade show" data-notify="container" *ngIf="!isVisible">
+  <button type="button" aria-hidden="true" class="close" data-dismiss="alert" aria-label="Close">
+    <i class="nc-icon nc-simple-remove"></i>
+  </button>
+  <span data-notify="icon" class="nc-icon nc-user-run"></span>
+  <span data-notify="message">{{message}}</span>
+</div>
+
+
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Bill to Pay</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismissAll('Close click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p><strong>Are you sure you want to pay the bill for <span
+          class="text-primary">{{this.bill.userAssigned}}</span>?</strong></p>
+    <p>Service: <span class="text-info"> {{this.bill.serviceBill}}</span></p>
+    <p>Amount: <span class="text-success"> {{this.bill.amount}} {{this.bill.currency}}</span></p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismissAll('cancel click')">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="payById()">Pay Now!</button>
+  </div>
+</ng-template>
+
+<ng-template #contentMassPay let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Pay bills</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismissAll('Close click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Select User</label>
+            <app-select-parameters [parameterList]="usersList" (onRowChange)="selectUserMassPay($event)"
+              [disabled]="true">
+            </app-select-parameters>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Select Service</label>
+            <app-select-parameters [parameterList]="servicesList" (onRowChange)="selectServiceMassPay($event)"
+              [disabled]="true">
+            </app-select-parameters>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Date to Pay</label>
+            <input type="text" name="dateBill" class="form-control" [(ngModel)]="massPayBill.dateBill"
+              placeholder="Insert date to pay (yyyy-MM) or (yyyyMM)" maxlength="7" minlength="1" required
+              #dateBill="ngModel">
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismissAll('cancel click')">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="massPayBills()">Pay Now!</button>
+  </div>
+</ng-template>
+
+
+<ng-template #contentCreateBill let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Create Bill</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismissAll('Close click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Select User</label>
+            <app-select-parameters [parameterList]="usersList" (onRowChange)="selectCreateUser($event)"
+              [disabled]="true">
+            </app-select-parameters>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Select Service</label>
+            <app-select-parameters [parameterList]="servicesList" (onRowChange)="selectCreateService($event)">
+            </app-select-parameters>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Select Service</label>
+            <app-select-parameters [parameterList]="coinsList" (onRowChange)="selectCreateCurrency($event)">
+            </app-select-parameters>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Date to Pay</label>
+            <input type="text" name="number" class="form-control" [(ngModel)]="createBill.number"
+              placeholder="Insert number of bills to create" maxlength="4" minlength="1" required #number="ngModel">
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismissAll('cancel click')">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="createBills()">Create Now!</button>
+  </div>
+</ng-template>
